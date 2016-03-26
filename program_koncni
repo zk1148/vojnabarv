@@ -1,0 +1,106 @@
+#include "qdbmp.h" 
+#include <stdio.h> 
+#include "qdbmp.c"
+#include <stdlib.h>
+#include <time.h>
+
+int main( int argc, char* argv[] ) { 
+	BMP* bmp;
+	BMP* nova;
+	UCHAR r, g, b; 
+	int width, height; 
+	int x, y; 
+
+	bmp= BMP_ReadFile( "random.bmp");
+	nova=BMP_ReadFile( "random.bmp");
+	BMP_CHECK_ERROR( stderr, -1 );
+
+	
+	width = BMP_GetWidth( bmp );
+	height = BMP_GetHeight( bmp );
+
+	
+	srand ( time(NULL) );
+  	
+
+  	UCHAR tabela_sosedov[ 4 ][3];
+  	int stBarv=0;
+  	int random_number=0;
+  	int koraki=0;
+
+  	while(koraki<1000){
+  		for ( y = 0 ; y < height ; y++ )
+		{
+			for ( x = 0 ; x < width ; x++ )
+			{
+				/* Get pixel's RGB values */
+				
+				stBarv=-1;
+				// printf("%d ", r);
+				// 	printf("%d ", g);
+				// 	printf("%d \n", b);
+				
+				if((x-1)>=0){
+					
+					BMP_GetPixelRGB( bmp, x-1, y, &r, &g, &b );
+					stBarv++;
+					tabela_sosedov[stBarv][0]=r;
+					tabela_sosedov[stBarv][1]=g;
+					tabela_sosedov[stBarv][2]=b;
+
+					
+				}
+				
+				if((y-1)>=0){
+					BMP_GetPixelRGB( bmp, x, y-1, &r, &g, &b );
+					stBarv++;
+					tabela_sosedov[stBarv][0]=r;
+					tabela_sosedov[stBarv][1]=g;
+					tabela_sosedov[stBarv][2]=b;
+
+
+				}
+				
+				if((x+1)<width){
+					BMP_GetPixelRGB( bmp, x+1, y, &r, &g, &b );
+					stBarv++;
+					tabela_sosedov[stBarv][0]=r;
+					tabela_sosedov[stBarv][1]=g;
+					tabela_sosedov[stBarv][2]=b;
+
+				}
+				
+				if((y+1)<height){
+					BMP_GetPixelRGB( bmp, x, y+1, &r, &g, &b );
+					stBarv++;
+					tabela_sosedov[stBarv][0]=r;
+					tabela_sosedov[stBarv][1]=g;
+					tabela_sosedov[stBarv][2]=b;
+					
+				}
+				
+				random_number = rand()%stBarv;
+				
+
+				/* Invert RGB values */
+				BMP_SetPixelRGB( nova, x, y, tabela_sosedov[random_number][0], 
+					tabela_sosedov[random_number][1], 
+					tabela_sosedov[random_number][2]);
+			}
+		}
+
+		bmp=nova;
+  		koraki++;
+  	}
+
+	
+
+
+	BMP_WriteFile( nova, "slika.bmp" );
+	BMP_CHECK_ERROR( stdout, -2 );
+
+	BMP_Free( bmp );
+
+
+	return 0;
+}
